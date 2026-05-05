@@ -37,11 +37,14 @@ services:
       MAIL_FROM_NAME: ${MAIL_FROM_NAME:-AiPaleograph}
       AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID:-minioadmin}
       AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY:-minioadmin}
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER:-minioadmin}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:-minioadmin}
       AWS_DEFAULT_REGION: ${AWS_DEFAULT_REGION:-us-east-1}
       AWS_BUCKET: ${AWS_BUCKET:-aipaleograph}
       AWS_URL: ${AWS_URL:-http://minio:9000/aipaleograph}
       AWS_ENDPOINT: ${AWS_ENDPOINT:-http://minio:9000}
       AWS_USE_PATH_STYLE_ENDPOINT: ${AWS_USE_PATH_STYLE_ENDPOINT:-true}
+      AWS_EC2_METADATA_DISABLED: "true"
       VITE_APP_NAME: ${VITE_APP_NAME:-AiPaleograph}
     command: >
       sh -lc "
