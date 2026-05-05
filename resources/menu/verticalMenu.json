@@ -1,0 +1,25 @@
+{
+  "menu": [
+    {
+      "menuHeader": "AiPaleograph"
+    },
+    {
+      "url": "/",
+      "name": "Dashboard",
+      "icon": "menu-icon icon-base bx bx-home-smile",
+      "slug": "dashboard"
+    },
+    {
+      "url": "/projects",
+      "name": "Projects",
+      "icon": "menu-icon icon-base bx bx-book-content",
+      "slug": "projects"
+    },
+    {
+      "url": "/settings",
+      "name": "Settings",
+      "icon": "menu-icon icon-base bx bx-cog",
+      "slug": "settings"
+    }
+  ]
+}
