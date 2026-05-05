@@ -11,12 +11,16 @@
     </title>
     <meta name="description" content="{{ config('variables.templateDescription') ? config('variables.templateDescription') : '' }}" />
     <meta name="keywords" content="{{ config('variables.templateKeyword') ? config('variables.templateKeyword') : '' }}" />
-    <meta property="og:title" content="{{ config('variables.ogTitle') ? config('variables.ogTitle') : '' }}" />
-    <meta property="og:type" content="{{ config('variables.ogType') ? config('variables.ogType') : '' }}" />
-    <meta property="og:url" content="{{ config('variables.productPage') ? config('variables.productPage') : '' }}" />
-    <meta property="og:image" content="{{ config('variables.ogImage') ? config('variables.ogImage') : '' }}" />
+    <meta property="og:title" content="{{ config('variables.ogTitle') ? config('variables.ogTitle') : config('variables.templateName') }}" />
+    <meta property="og:type" content="{{ config('variables.ogType') ? config('variables.ogType') : 'website' }}" />
+    <meta property="og:url" content="{{ url()->current() }}" />
+    <meta property="og:image" content="{{ config('variables.ogImage') ? config('variables.ogImage') : asset('assets/img/favicon/favicon.ico') }}" />
     <meta property="og:description" content="{{ config('variables.templateDescription') ? config('variables.templateDescription') : '' }}" />
-    <meta property="og:site_name" content="{{ config('variables.creatorName') ? config('variables.creatorName') : '' }}" />
+    <meta property="og:site_name" content="{{ config('variables.templateName') ? config('variables.templateName') : '' }}" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="{{ config('variables.ogTitle') ? config('variables.ogTitle') : config('variables.templateName') }}" />
+    <meta name="twitter:description" content="{{ config('variables.templateDescription') ? config('variables.templateDescription') : '' }}" />
+    <meta name="twitter:image" content="{{ config('variables.ogImage') ? config('variables.ogImage') : asset('assets/img/favicon/favicon.ico') }}" />
     <meta name="robots" content="noindex, nofollow" />
     <!-- laravel CRUD token -->
     <meta name="csrf-token" content="{{ csrf_token() }}" />
