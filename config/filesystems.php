@@ -1,5 +1,16 @@
 <?php
 
+$awsKey = env('AWS_ACCESS_KEY_ID');
+$awsSecret = env('AWS_SECRET_ACCESS_KEY');
+
+$resolvedKey = is_string($awsKey) && $awsKey !== ''
+    ? $awsKey
+    : env('MINIO_ROOT_USER', 'minioadmin');
+
+$resolvedSecret = is_string($awsSecret) && $awsSecret !== ''
+    ? $awsSecret
+    : env('MINIO_ROOT_PASSWORD', 'minioadmin');
+
 return [
 
     /*
@@ -49,8 +60,8 @@ return [
 
         's3' => [
             'driver' => 's3',
-            'key' => env('AWS_ACCESS_KEY_ID', env('MINIO_ROOT_USER')),
-            'secret' => env('AWS_SECRET_ACCESS_KEY', env('MINIO_ROOT_PASSWORD')),
+            'key' => $resolvedKey,
+            'secret' => $resolvedSecret,
             'region' => env('AWS_DEFAULT_REGION'),
             'bucket' => env('AWS_BUCKET'),
             'url' => env('AWS_URL'),
@@ -64,8 +75,8 @@ return [
 
         'minio' => [
             'driver' => 's3',
-            'key' => env('AWS_ACCESS_KEY_ID', env('MINIO_ROOT_USER', 'minioadmin')),
-            'secret' => env('AWS_SECRET_ACCESS_KEY', env('MINIO_ROOT_PASSWORD', 'minioadmin')),
+            'key' => $resolvedKey,
+            'secret' => $resolvedSecret,
             'region' => env('AWS_DEFAULT_REGION', 'us-east-1'),
             'bucket' => env('AWS_BUCKET'),
             'url' => env('AWS_URL'),
