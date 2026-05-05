@@ -47,6 +47,14 @@ class TranscribeProjectPageJob implements ShouldQueue
 
         $disk = Storage::disk(config('filesystems.default'));
         $binary = $disk->get($page->object_key);
+        if ($binary === false || $binary === null || $binary === '') {
+            throw new \RuntimeException(
+                'Could not read page image from storage (missing or empty). '
+                .'Confirm MinIO is reachable, the bucket exists, FILESYSTEM_DISK=minio, '
+                .'and AWS_ACCESS_KEY_ID / AWS_SECRET_ACCESS_KEY match MINIO_ROOT_USER / MINIO_ROOT_PASSWORD.'
+            );
+        }
+
         $base64 = base64_encode($binary);
 
         $result = $openRouter->transcribeManuscriptPage(

@@ -1,15 +1,33 @@
 <?php
 
-$awsKey = env('AWS_ACCESS_KEY_ID');
-$awsSecret = env('AWS_SECRET_ACCESS_KEY');
+/**
+ * Value suitable for Laravel's S3 client: Illuminate only attaches static credentials when
+ * both key and secret are non-empty per PHP's empty() — otherwise the AWS SDK falls through
+ * to the instance metadata provider (broken on Coolify / non-AWS hosts).
+ */
+$nonEmpty = static function ($value): ?string {
+    if (! is_string($value)) {
+        return null;
+    }
+    $trimmed = trim($value);
+    if ($trimmed === '' || strcasecmp($trimmed, 'null') === 0) {
+        return null;
+    }
+    // PHP empty() treats "0" as empty; never use it as a credential placeholder.
+    if ($trimmed === '0') {
+        return null;
+    }
 
-$resolvedKey = is_string($awsKey) && $awsKey !== ''
-    ? $awsKey
-    : env('MINIO_ROOT_USER', 'minioadmin');
+    return $trimmed;
+};
 
-$resolvedSecret = is_string($awsSecret) && $awsSecret !== ''
-    ? $awsSecret
-    : env('MINIO_ROOT_PASSWORD', 'minioadmin');
+$resolvedKey = $nonEmpty(env('AWS_ACCESS_KEY_ID'))
+    ?? $nonEmpty(env('MINIO_ROOT_USER'))
+    ?? 'minioadmin';
+
+$resolvedSecret = $nonEmpty(env('AWS_SECRET_ACCESS_KEY'))
+    ?? $nonEmpty(env('MINIO_ROOT_PASSWORD'))
+    ?? 'minioadmin';
 
 return [
 
