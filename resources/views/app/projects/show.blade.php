@@ -34,6 +34,48 @@
     return el.value;
   }
 
+  /**
+   * Load transcribed text into TinyMCE with line breaks visible.
+   * Plain newlines, <br>, and block tags become visual breaks; inline tags (bold, links) are kept.
+   */
+  function flattenToLineBreakHtml(value) {
+    var raw = decodeHtmlEntities(String(value || ''));
+    if (!raw.trim()) return '';
+    raw = raw.replace(/\r\n/g, '\n').replace(/\r/g, '\n').replace(/\\n/g, '\n');
+    if (!hasHtmlTags(raw)) {
+      return raw.replace(/\n/g, '<br>');
+    }
+    var tpl = document.createElement('template');
+    tpl.innerHTML = raw.trim();
+    var out = [];
+    function emitBreak() {
+      if (!out.length) return;
+      if (out[out.length - 1] !== '<br>') out.push('<br>');
+    }
+    function walk(node) {
+      if (node.nodeType === Node.TEXT_NODE) {
+        if (node.textContent) out.push(node.textContent);
+        return;
+      }
+      if (node.nodeType !== Node.ELEMENT_NODE) return;
+      var tag = node.tagName.toLowerCase();
+      if (tag === 'br') {
+        emitBreak();
+        return;
+      }
+      if (tag === 'p' || tag === 'div' || /^h[1-6]$/.test(tag) || tag === 'li' || tag === 'blockquote') {
+        for (var c = node.firstChild; c; c = c.nextSibling) walk(c);
+        emitBreak();
+        return;
+      }
+      if (node.outerHTML) out.push(node.outerHTML);
+    }
+    for (var n = tpl.content.firstChild; n; n = n.nextSibling) walk(n);
+    var joined = out.join('');
+    joined = joined.replace(/(?:<br\s*\/?>(?:\s|\u00a0)*)+$/gi, '');
+    return joined || raw.replace(/\n/g, '<br>');
+  }
+
   function csrfToken() {
     const m = document.querySelector('meta[name="csrf-token"]');
     return m ? m.getAttribute('content') : '';
@@ -147,12 +189,12 @@
       setZoom(1);
     }
 
-    function createTinyEditor(selector) {
+    function createTinyEditor(selector, extra) {
       if (!window.tinymce) return Promise.resolve(null);
       if (window.tinymce.get(selector.replace('#', ''))) {
         return Promise.resolve(window.tinymce.get(selector.replace('#', '')));
       }
-      return window.tinymce.init({
+      var base = {
         selector: selector,
         menubar: false,
         statusbar: false,
@@ -172,7 +214,8 @@
             if (editModal) editModal.hide();
           });
         },
-      }).then(function (editors) {
+      };
+      return window.tinymce.init(Object.assign({}, base, extra || {})).then(function (editors) {
         return editors && editors.length ? editors[0] : null;
       });
     }
@@ -182,7 +225,7 @@
       tinyReadyPromise = ensureTinyMce().then(function () {
         return Promise.all([
           createTinyEditor('#edit-original-text'),
-          createTinyEditor('#edit-transcribed-text'),
+          createTinyEditor('#edit-transcribed-text', { newline_behavior: 'linebreak' }),
           createTinyEditor('#edit-notes'),
         ]);
       });
@@ -199,9 +242,11 @@
       var editor = window.tinymce ? window.tinymce.get(id) : null;
       if (editor) {
         var content = value || '';
-        if (fieldName === 'original_text' || fieldName === 'transcribed_text' || fieldName === 'notes') {
+        if (fieldName === 'transcribed_text') {
+          content = flattenToLineBreakHtml(content);
+        } else if (fieldName === 'original_text' || fieldName === 'notes') {
           if (!hasHtmlTags(content)) {
-            content = decodeHtmlEntities(content).replace(/\n/g, '<br>');
+            content = decodeHtmlEntities(content).replace(/\r?\n/g, '<br>');
           }
         }
         editor.setContent(content);
